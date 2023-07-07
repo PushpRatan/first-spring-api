@@ -65,5 +65,15 @@ public class StudentController {
     }
 
 
+    @GetMapping("/getage/{age}")
+    public int ageFilter(@PathVariable("age") int age){
+        int total = 0;
+        for(int adminNo : studentsDB.keySet()){
+            if(studentsDB.get(adminNo).getAge()<age){
+                total++;
+            }
+        }
+        return total;
+    }
 
 }
