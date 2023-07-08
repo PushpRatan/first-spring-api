@@ -1,5 +1,8 @@
 package com.first.studentmanagementportal;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -7,73 +10,49 @@ import java.util.*;
 @RestController
 public class StudentController {
 
-    Map<Integer, Student> studentsDB = new HashMap<>();
+    @Autowired
+    StudentService studentService;
 
 
     // Read Operations
     @GetMapping("/get_info")
-    public Student getStudent(@RequestParam("id") int adminNo){
-        if(studentsDB.containsKey(adminNo)){
-            return studentsDB.get(adminNo);
-        }else{
-            System.out.println("No such student exists");
+    public ResponseEntity getStudent(@RequestParam("id") int adminNo){
+        Student s = studentService.getStudent(adminNo);
+        if(s == null){
+            return new ResponseEntity("Student Not Found", HttpStatus.NOT_FOUND);
         }
-        return null;
-    }
-
-    @GetMapping("/get/{id}")
-    public Student getStudentByPath(@PathVariable("id") int adminNo){
-        if(studentsDB.containsKey(adminNo)){
-            return studentsDB.get(adminNo);
-        }else{
-            System.out.println("No such student exists");
-        }
-        return null;
+        return new ResponseEntity(s, HttpStatus.ACCEPTED);
     }
 
 
     //Create Operations
     @PostMapping("/add")
-    public String addStudent(@RequestBody Student student){
-        try{
-            studentsDB.put(student.getAdminNo(), student);
-            return "Student added successfully";
-        }catch (Exception e){
-            return "Received an error";
-        }
+    public ResponseEntity addStudent(@RequestBody Student student){
+        System.out.println("Check");
+        String s= studentService.addStudent(student);
+        return new ResponseEntity(s, HttpStatus.CREATED);
     }
 
 
     @PutMapping("/put/{id}/{data}")
-    public String updateCourse(@PathVariable("id") int adminNo, @PathVariable("data") String course){
-        if(studentsDB.containsKey(adminNo)){
-            Student student = studentsDB.get(adminNo);
-            student.setCourse(course);
-            return "Data updated successfully";
-        }
-        return "No data found";
+    public ResponseEntity updateCourse(@PathVariable("id") int adminNo, @PathVariable("data") String course){
+        String s =  studentService.updateCourse(adminNo, course);
+        return new ResponseEntity(s, HttpStatus.ACCEPTED);
     }
 
 
     @DeleteMapping("/delete/{id}")
-    public String deleteStudent(@PathVariable("id") int adminNo){
-        if(studentsDB.containsKey(adminNo)){
-            studentsDB.remove(adminNo);
-            return "Student Deleted";
-        }
-        return "No data found";
+    public ResponseEntity deleteStudent(@PathVariable("id") int adminNo){
+        String s = studentService.deleteStudent(adminNo);
+        return new ResponseEntity(s, HttpStatus.ACCEPTED);
     }
 
 
     @GetMapping("/getage/{age}")
-    public int ageFilter(@PathVariable("age") int age){
-        int total = 0;
-        for(int adminNo : studentsDB.keySet()){
-            if(studentsDB.get(adminNo).getAge()<age){
-                total++;
-            }
-        }
-        return total;
+    public ResponseEntity ageFilter(@PathVariable("age") int age){
+        int i = studentService.ageFilter(age);
+        return new ResponseEntity(i, HttpStatus.ACCEPTED);
+
     }
 
 }
